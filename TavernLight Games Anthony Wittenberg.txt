@@ -1,0 +1,103 @@
+Tavernlight Games
+
+Anthony Wittenberg
+
+I enjoyed working through these problems and being reacquainted with C++ like principles.
+It seems as though there were some dependencies I was unable to install in order to compile
+and execute TFS. This was a bit upsetting as I was looking forward to those questions. I will be
+away this next week and have no connectivity, however I have attached my solutions for the first
+problems.
+I would love the chance to open up discussion about what I can do to be best utilized at
+Tavernlight.
+
+Q1.
+
+local function releaseStorage(player)
+	-- Added validation
+	if player and type(player.setStorageValue) == "function" then
+		player:setStorageValue(1000, -1)
+		return true
+	else
+		print("Error: Invalid player or setStorageValue method missing.")
+		return false
+	end
+end
+
+function onLogout(player)
+	-- Added a check to ensure player is not nil
+	if not player then
+		print("Error: Invalid player.") -- Printed an error message
+		return false
+	end
+	
+	if player:getStorageValue(1000) == 1 then
+		addEvent(releaseStorage, 1000, player)
+	end
+	return true
+end
+
+Q2.
+
+function printSmallGuildNames(memberCount)
+	-- Added a placeholder for parameterization in the SQL query for security
+	-- (Prevents SQL Injection)
+	local selectGuildQuery = "SELECT name FROM guilds WHERE max_members &lt; ?;"
+	local result = db.storeQuery(selectGuildQuery, memberCount)
+	if not result then
+	-- Added validation
+		print("Error: Failed to execute database query")
+		return
+	end
+	-- The present implementation was only returning the first guild name result in the db
+	-- A loop has been added to return all guild names were the member size &lt; memberCount
+	while result:next() do
+		local guildName = result:getDataString("name")
+		print(guildName)
+	end
+end
+
+Q3.
+
+function do_sth_with_PlayerParty(playerId, membername)
+	local player = Player(playerId)
+	if not player then
+		print("Error: Invalid player ID")
+		return
+	end
+	local party = player:getParty()
+	if not party then
+		print("Error: Player is not in a party")
+		return
+	end
+	-- For efficiency and
+	local partyMembers = party:getMembers()
+	for k,v in pairs(partyMembers) do
+		if v:getName() == membername then
+			party:removeMember(v)
+			return
+	end
+
+	end
+	print("Error: Member not found in the party")
+end
+
+Q4.
+
+void Game::addItemToPlayer(const std::string&amp; recipient, uint16_t itemId)
+{
+	std::unique_ptr&lt;Player&gt; player(g_game.getPlayerByName(recipient));
+	if (!player) {
+		player.reset(new Player(nullptr));
+		if (!IOLoginData::loadPlayerByName(player.get(), recipient)) {
+			return; // Unable to load player data
+		}
+		}
+	std::unique_ptr&lt;Item&gt; item(Item::CreateItem(itemId));
+	if (!item) {
+	return; // Unable to create item
+	}
+	g_game.internalAddItem(player-&gt;getInbox(), item.get(), INDEX_WHEREEVER, FLAG_NOLIMIT);
+	if (player-&gt;isOffline()) {
+	IOLoginData::savePlayer(player.get());
+	}
+}
